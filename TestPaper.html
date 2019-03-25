@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+
+
+<style type="text/css">
+	.panel {
+		margin-top: 2em; 
+	}
+	.area_wrap {
+    	overflow-x: auto;
+	}
+	.table tr td:nth-child(1), .table tr td:nth-child(2){
+		width:13%;
+	}
+	.table tr td:nth-child(3), .table tr td:nth-child(4){
+		width:10%;
+	}
+	.table tr td:nth-child(5){
+		width:15%;
+	}
+	.table tr td:nth-child(6){
+		width:22%;
+	}
+	.table tr td:nth-child(7){
+		width:17%;
+	}
+
+	
+</style>
+
+</head>
+
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row">
+					  <div class="col-xs-5">
+					    <div class="input-group">
+					      <span class="input-group-addon">
+					        First Name
+					      </span>
+					      <input type="text" id="firstName" class="form-control" aria-label="First Name">
+					    </div>
+					  </div>
+					  <div class="col-xs-5">
+					    <div class="input-group">
+					      <span class="input-group-addon">
+					        Last Name
+					      </span>
+					      <input type="text" id="lastName" class="form-control" aria-label="Last Name">
+					    </div>
+					  </div>
+					  <div class="col-xs-2">
+					    <div class="input-group">				      
+					      <button class="btn btn-primary">Search</button>
+					    </div>
+					  </div>
+					</div>
+				</div>
+
+
+				<div class="progress">
+			        <!-- <div class="progress-bar" id="bar">
+			            <span class="sr-only">60% Complete</span>
+
+			        </div> -->
+			         <div class="progress-bar" id="bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">
+			  		</div>
+			  
+
+			    </div>
+			    <h3 class="text-center" id="msg"><span class="label label-primary">Please wait until the process is completed</span></h3>
+
+
+			    <div class="area_wrap">
+		  			<div id="TablDetails"></div>		
+			  	</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+    <script type="text/javascript">
+         i = 0;
+        progressBar = $("#bar");
+        function countNumbers(){
+        	console.log(i);
+            if(i <= 100){
+               
+                progressBar.css("width", i + "%");
+				setTimeout("countNumbers()", 10);
+
+            }
+            
+             i = i + 1;
+             if(i==101)
+            {
+            	setTimeout("mydata()",500);
+            }
+           
+        }
+        // countNumbers();
+    </script>
+
+<script>
+
+$( document ).ready(function() {
+    
+	
+	countNumbers();
+	//setTimeout("mydata()", 10);
+	//mydata();
+
+});
+
+$("button").click(function(){
+	//debugger;
+	i=0
+    // debugger;
+    $("#msg").show();
+	$("#bar").show();
+     $("#TablDetails").empty();
+	countNumbers();
+
+
+});
+
+	function mydata(){
+		a="";
+		if ($("#firstName").val()!="" && $("#lastName").val()!="") {
+			a = "first_name="+$("#firstName").val()+"&last_name="+$("#lastName").val();
+		}
+		else if ($("#firstName").val()!=""){
+			a = "first_name="+$("#firstName").val()
+		}
+		else if ($("#lastName").val()!=""){
+			a = "last_name="+$("#lastName").val()
+		}
+
+
+		$.ajax({
+	        type:'GET',
+	        url: 'https://data.cityofnewyork.us/resource/5scm-b38n.json',
+	        data :a
+	        	 //first_name:  $("#firstName").val() // , last_name: $("#lastName").val()
+
+	        ,
+	        datatype:'json',
+	        success:function(searchdata) {
+	                 
+                console.log(searchdata);
+
+	          	var tbdt="";        
+				var tabl = "<table class='table table-striped table-bordered'><thead><tr><th>First Name</th><th>Last Name</th><th>List No.</th><th>Exam No.</th><th>List Agency Desc</th><th>List Title Desc</th><th>Published Date</th></tr></thead><tbody>";
+	                        
+	                 	for(var i =0; i <= searchdata.length-1;i++)
+	                 	{
+		                 	tbdt = tbdt + "<tr><td>"+searchdata[i].first_name+"</td><td>"+searchdata[i].last_name+"</td><td>"+searchdata[i].list_no+"</td><td>"+searchdata[i].exam_no+"</td><td>"+searchdata[i].list_agency_desc+"</td><td>"+searchdata[i].list_title_desc+"</td><td>"+searchdata[i].published_date+"</td>";
+
+		                  			                 	
+		                 
+		                }
+					tabl = tabl + tbdt + "<tbody></table>"
+					
+					$("#msg").hide();
+	             	$("#TablDetails").html(tabl);
+	             	// $("#TablDetails").empty();
+	             	$("#bar").hide();
+					//$("#bar").css("width","0");
+					i = 0;
+				    progressBar.css("width", i + "%");
+				    progressBar = $("#bar");
+
+            },
+         	error: function(err) {
+	         	alert(err.statusText);
+	         	// console.log(err);
+         	}
+
+        });
+
+	}
+	 
+	
+</script>
